@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ url_for('view_stores') }}" style="color: var(--primary-color); text-decoration: none;">
+        <i class="fa-solid fa-arrow-left"></i> {{ _('Volver a tiendas') }}
+    </a>
+</div>
+
+<div class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+    {% if store.image %}
+    <img src="{{ store.image }}" alt="{{ store.name }}" style="width: 100%; height: 300px; object-fit: cover;">
+    {% endif %}
+    <div style="padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h1 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-shop" style="color: var(--primary-color);"></i>
+                {{ store.name }}
+            </h1>
+            <span
+                style="background-color: var(--bg-color); padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; font-size: 0.9rem; color: var(--primary-color);">
+                ID: {{ store.id }}
+            </span>
+        </div>
+
+        <div style="font-size: 1.2rem; color: var(--text-color); margin-bottom: 2rem;">
+            <i class="fa-solid fa-location-dot" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
+            {{ store.address }}
+        </div>
+
+        <h3 style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-cubes-stacked"></i> {{ _('Inventario Disponible') }}
+        </h3>
+
+        {% if store.inventories %}
+        <div class="grid">
+            {% for item in store.inventories %}
+            <div class="card" style="border-left: 4px solid var(--primary-color);">
+                <div class="card-title" style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-box"></i> {{ item.product.name }}
+                </div>
+                <div class="card-body" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="color: var(--text-color); font-size: 0.9rem;">
+                        {{ item.product.size }} | {{ item.product.originCountry or _('Sin origen') }}
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">
+                        {{ item.stockCount }} <span style="font-size: 1rem; font-weight: normal;">uds</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--text-color); font-style: italic;">
+            {{ _('Esta tienda actualmente no dispone de stock registrado.') }}
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

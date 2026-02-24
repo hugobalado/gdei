@@ -11,10 +11,11 @@ FIWARE Smart Store es una aplicación web intuitiva diseñada para la gestión i
 - Ofrecer soporte multi-idioma nativo para adaptarse a diferentes equipos corporativos internacionales.
 
 ## 3. Funcionalidades Clave
-1. **Gestión de Tiendas:** Visualización y registro de nuevas sucursales (Nombre, Ubicación).
-2. **Catálogo de Productos:** Visualización y alta de mercancías (Nombre, Descripción, Precio).
+1. **Gestión de Tiendas:** Visualización de todas las sucursales con soporte para imágenes y vistas de detalle avanzado mostrando el stock local específico de esa tienda.
+2. **Catálogo de Productos:** Consulta exhaustiva de mercancías con soporte para la procedencia (`originCountry`), imágenes, e información cruzada de disponibilidad en qué tiendas se halla el artículo.
 3. **Control de Inventario:** Capacidad para asociar un producto a una tienda e incrementar su cantidad de unidades.
-4. **Dashboard General:** Un panel con acceso directo a cada módulo gestor, con ayudas visuales (iconos) para fácil identificación de área.
+4. **Dashboard Estratégico:** Panel de control principal con KPIs clave (Total de Tiendas, Total de Productos, Stock Físico Total) extraídos de la BD en tiempo real.
+5. **Formularios Dinámicos Aislados:** Vistas únicas de creación para facilitar el alta de tiendas y productos sin sobrecargar las interfaces iterativas.
 5. **Modo Oscuro/Claro:** Adaptación automática a las preferencias de visualización del usuario usando almacenamiento en el navegador (Local Storage).
 6. **Soporte Multi-Idioma (ES/EN):** Cambio en tiempo real de toda la interfaz estática garantizando que el usuario pueda usar el sistema en su idioma de preferencia, conservando las preferencias en sesión de manera ininterrumpida.
 

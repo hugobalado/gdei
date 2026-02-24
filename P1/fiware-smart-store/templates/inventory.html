@@ -9,8 +9,8 @@
     <h2 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus"></i> {{ _('Añadir Stock') }}</h2>
     <form method="POST">
         <div class="form-group">
-            <label for="store_id">{{ _('Tienda') }}</label>
-            <select id="store_id" name="store_id" class="form-control" required>
+            <label for="refStore">{{ _('Tienda') }}</label>
+            <select id="refStore" name="refStore" class="form-control" required>
                 <option value="" disabled selected>{{ _('Seleccione una tienda') }}</option>
                 {% for store in stores %}
                 <option value="{{ store.id }}">{{ store.name }}</option>
@@ -18,8 +18,8 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="product_id">{{ _('Producto') }}</label>
-            <select id="product_id" name="product_id" class="form-control" required>
+            <label for="refProduct">{{ _('Producto') }}</label>
+            <select id="refProduct" name="refProduct" class="form-control" required>
                 <option value="" disabled selected>{{ _('Seleccione un producto') }}</option>
                 {% for product in products %}
                 <option value="{{ product.id }}">{{ product.name }}</option>
@@ -27,8 +27,8 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="quantity">{{ _('Cantidad a Añadir') }}</label>
-            <input type="number" id="quantity" name="quantity" class="form-control" required min="1"
+            <label for="stockCount">{{ _('Cantidad a Añadir') }}</label>
+            <input type="number" id="stockCount" name="stockCount" class="form-control" required min="1"
                 placeholder="{{ _('Ej: 50') }}">
         </div>
         <button type="submit" class="btn btn-primary">
@@ -51,7 +51,7 @@
             </div>
             <div
                 style="font-size: 2rem; font-weight: 700; color: var(--primary-color); text-align: center; margin: 1rem 0;">
-                {{ inv.quantity }} <span style="font-size: 1rem; color: var(--text-color); font-weight: normal;">{{
+                {{ inv.stockCount }} <span style="font-size: 1rem; color: var(--text-color); font-weight: normal;">{{
                     _('uds') }}</span>
             </div>
         </div>

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ url_for('view_products') }}" style="color: var(--primary-color); text-decoration: none;">
+        <i class="fa-solid fa-arrow-left"></i> {{ _('Volver al catálogo') }}
+    </a>
+</div>
+
+<div class="card" style="display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+    {% if product.image %}
+    <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 100%; height: 300px; object-fit: cover;">
+    {% endif %}
+
+    <div style="padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <h1 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-box" style="color: var(--primary-color);"></i>
+                {{ product.name }}
+            </h1>
+            <span
+                style="background-color: var(--bg-color); padding: 0.5rem 1rem; border-radius: 4px; font-family: monospace; font-size: 0.9rem; color: var(--primary-color);">
+                ID: {{ product.id }}
+            </span>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--primary-color);">
+                {{ "%.2f"|format(product.price) }} €
+            </div>
+            {% if product.size %}
+            <div style="font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-color);">
+                <i class="fa-solid fa-circle-info"></i> {{ product.size }}
+            </div>
+            {% endif %}
+            {% if product.originCountry %}
+            <div style="font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-color);">
+                <i class="fa-solid fa-earth-americas"></i> {{ product.originCountry }}
+            </div>
+            {% endif %}
+        </div>
+
+        <h3 style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-shop"></i> {{ _('Disponibilidad en Tiendas') }}
+        </h3>
+
+        {% if product.inventories %}
+        <div class="grid">
+            {% for item in product.inventories %}
+            <a href="{{ url_for('store_detail', id=item.store.id) }}" style="text-decoration: none; color: inherit;">
+                <div class="card"
+                    style="border-left: 4px solid var(--primary-color); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 0.2rem;">{{ item.store.name }}
+                        </div>
+                        <div style="color: var(--text-color); font-size: 0.9rem;"><i
+                                class="fa-solid fa-location-dot"></i> {{ item.store.address }}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">
+                        {{ item.stockCount }} <span style="font-size: 1rem; font-weight: normal;">uds</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--text-color); font-style: italic;">
+            {{ _('Este producto no tiene stock asignado en ninguna tienda.') }}
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

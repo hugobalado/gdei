@@ -16,33 +16,36 @@ Representa una sucursal física de la cadena de supermercados.
 
 | Columna | Tipo de Dato | Llave | Modificadores | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | Integer | PK | Auto-increment | Identificador único de la tienda. |
+| `id` | String(255) | PK | URN UUID | Identificador único de la tienda (formato URN `urn:ngsi-ld:Store:...`). |
 | `name` | String(100) | | Not Null | Nombre descriptivo de la sucursal. |
-| `location` | String(200) | | Not Null | Dirección postal o ubicación de la misma. |
+| `address`| String(200) | | Not Null | Dirección postal o ubicación de la misma. |
+| `image` | String(500) | | Nullable | URL externa (ej. Unsplash) a una imagen representativa. |
 
 ### Tabla: `product`
 Representa un artículo genérico del catálogo disponible para venderse.
 
 | Columna | Tipo de Dato | Llave | Modificadores | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | Integer | PK | Auto-increment | Identificador único del producto. |
+| `id` | String(255) | PK | URN UUID | Identificador único del producto (formato URN `urn:ngsi-ld:Product:...`). |
 | `name` | String(100) | | Not Null | Nombre del producto comercializado. |
-| `description`| Text | | Nullable | Breve caracterización (ej. "1 Litro, Entera"). |
+| `size` | Text | | Nullable | Tamaño o breve caracterización (ej. "1 Litro", "S", "M"). |
 | `price` | Float | | Not Null | Precio general o recomendando de venta (€). |
+| `originCountry` | String(100) | | Nullable | País de procedencia del producto (ej. "España"). |
+| `image` | String(500) | | Nullable | URL externa (ej. Unsplash) a una foto del producto. |
 
-### Tabla: `inventory`
+### Tabla: `inventoryitem` (Modelo `InventoryItem`)
 Tabla asociativa transaccional. Registra qué cantidad de cada producto concreto está albergada en cada tienda específica.
 
 | Columna | Tipo de Dato | Llave | Modificadores | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | Integer | PK | Auto-increment | Identificador transaccional único. |
-| `store_id` | Integer | FK | Not Null | Relación (Foreign Key) a `store.id`. |
-| `product_id` | Integer | FK | Not Null | Relación (Foreign Key) a `product.id`. |
-| `quantity` | Integer | | Not Null, Default(0)| Cantidad de unidades físicas de stock disponibles. |
+| `id` | String(255) | PK | URN UUID | Identificador transaccional único (formato URN `urn:ngsi-ld:InventoryItem:...`). |
+| `refStore` | String(255)| FK | Not Null | Relación (Foreign Key) a `store.id`. |
+| `refProduct` | String(255)| FK | Not Null | Relación (Foreign Key) a `product.id`. |
+| `stockCount` | Integer | | Not Null, Default(0)| Cantidad de unidades físicas de stock disponibles. |
 
 ## 4. Políticas en Cascada (Cascade)
 - Ambos el modelo de `Store` y `Product` están configurados con relaciones tipo `lazy=True, cascade="all, delete-orphan"`.
-- Estó significa metodológicamente que si un producto se retira permanentemente del catalogo (`deleted`), todos sus registros de inventario (asociaciones con tiendas) en la tabla `inventory` serán automáticamente purgados huérfanos. Lo mismo ocurre si se cierra (elimina) una tienda desde el sistema.
+- Estó significa metodológicamente que si un producto se retira permanentemente del catalogo (`deleted`), todos sus registros de inventario (asociaciones con tiendas) en la tabla `inventoryitem` serán automáticamente purgados huérfanos. Lo mismo ocurre si se cierra (elimina) una tienda desde el sistema.
 
 ## 5. Estrategia de Internacionalización (i18n)
 - **Agnosticismo del Dato:** Los modelos están diseñados para almacenar exclusivamente información de forma neutral al lenguaje regional activo de la sesión del usuario.

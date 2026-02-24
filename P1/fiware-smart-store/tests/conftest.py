@@ -4,7 +4,7 @@ import pytest
 
 # Usaremos la aplicación real y su base de datos
 from app import app as flask_app
-from models import db, Store, Product, Inventory
+from models import db, Store, Product, InventoryItem
 
 @pytest.fixture
 def app():

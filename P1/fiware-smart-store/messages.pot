@@ -8,24 +8,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-24 16:58+0100\n"
+"POT-Creation-Date: 2026-02-24 18:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: templates/base.html:27 templates/index.html:13
+#: templates/base.html:27 templates/index.html:28
 msgid "Tiendas"
 msgstr ""
 
-#: templates/base.html:32 templates/index.html:21
+#: templates/base.html:32 templates/index.html:36
 msgid "Productos"
 msgstr ""
 
-#: templates/base.html:37 templates/index.html:30
+#: templates/base.html:37 templates/index.html:45
 msgid "Inventario"
 msgstr ""
 
@@ -37,15 +37,27 @@ msgstr ""
 msgid "Bienvenido al sistema de gestión FIWARE Smart Store."
 msgstr ""
 
-#: templates/index.html:14
+#: templates/index.html:11
+msgid "Tiendas Totales"
+msgstr ""
+
+#: templates/index.html:15 templates/products.html:15
+msgid "Productos en Catálogo"
+msgstr ""
+
+#: templates/index.html:19
+msgid "Stock Físico (uds.)"
+msgstr ""
+
+#: templates/index.html:29
 msgid "Gestiona las diferentes sucursales del supermercado."
 msgstr ""
 
-#: templates/index.html:22
+#: templates/index.html:37
 msgid "Administra el catálogo de productos disponibles."
 msgstr ""
 
-#: templates/index.html:31
+#: templates/index.html:46
 msgid "Controla el stock de productos en cada tienda."
 msgstr ""
 
@@ -97,79 +109,139 @@ msgstr ""
 msgid "No hay inventario registrado."
 msgstr ""
 
-#: templates/products.html:5
-msgid "Gestión de Productos"
+#: templates/product_detail.html:6 templates/product_form.html:6
+msgid "Volver al catálogo"
 msgstr ""
 
-#: templates/products.html:9
+#: templates/product_detail.html:44
+msgid "Disponibilidad en Tiendas"
+msgstr ""
+
+#: templates/product_detail.html:68
+msgid "Este producto no tiene stock asignado en ninguna tienda."
+msgstr ""
+
+#: templates/product_form.html:11
 msgid "Nuevo Producto"
 msgstr ""
 
-#: templates/products.html:12
+#: templates/product_form.html:14
 msgid "Nombre del Producto"
 msgstr ""
 
-#: templates/products.html:14
+#: templates/product_form.html:16
 msgid "Ej: Leche Entera"
 msgstr ""
 
-#: templates/products.html:17
-msgid "Descripción"
+#: templates/product_form.html:19
+msgid "Tamaño / Descripción"
 msgstr ""
 
-#: templates/products.html:19
+#: templates/product_form.html:20
 msgid "Ej: 1 Litro"
 msgstr ""
 
-#: templates/products.html:22
+#: templates/product_form.html:23
 msgid "Precio (€)"
 msgstr ""
 
-#: templates/products.html:27
+#: templates/product_form.html:28
+msgid "País de Origen"
+msgstr ""
+
+#: templates/product_form.html:30
+msgid "Ej: España"
+msgstr ""
+
+#: templates/product_form.html:33
+msgid "URL de la Imagen"
+msgstr ""
+
+#: templates/product_form.html:34 templates/store_form.html:25
+msgid "Ej: https://..."
+msgstr ""
+
+#: templates/product_form.html:37
 msgid "Guardar Producto"
 msgstr ""
 
-#: templates/products.html:32
-msgid "Productos en Catálogo"
+#: templates/products.html:6
+msgid "Gestión de Productos"
 msgstr ""
 
-#: templates/products.html:51
+#: templates/products.html:7
+msgid "Listado de todos los artículos en catálogo."
+msgstr ""
+
+#: templates/products.html:11
+msgid "Añadir Producto"
+msgstr ""
+
+#: templates/products.html:44
 msgid "No hay productos en el catálogo."
 msgstr ""
 
-#: templates/stores.html:5
-msgid "Gestión de Tiendas"
+#: templates/store_detail.html:6 templates/store_form.html:6
+msgid "Volver a tiendas"
 msgstr ""
 
-#: templates/stores.html:9
+#: templates/store_detail.html:32
+msgid "Inventario Disponible"
+msgstr ""
+
+#: templates/store_detail.html:44
+msgid "Sin origen"
+msgstr ""
+
+#: templates/store_detail.html:55
+msgid "Esta tienda actualmente no dispone de stock registrado."
+msgstr ""
+
+#: templates/store_form.html:11
 msgid "Nueva Tienda"
 msgstr ""
 
-#: templates/stores.html:12
+#: templates/store_form.html:14
 msgid "Nombre de la Tienda"
 msgstr ""
 
-#: templates/stores.html:14
+#: templates/store_form.html:16
 msgid "Ej: Supermercado Norte"
 msgstr ""
 
-#: templates/stores.html:17
+#: templates/store_form.html:19
 msgid "Ubicación"
 msgstr ""
 
-#: templates/stores.html:19
+#: templates/store_form.html:21
 msgid "Ej: Calle Mayor, 1"
 msgstr ""
 
-#: templates/stores.html:22
+#: templates/store_form.html:24
+msgid "URL de la Imagen (opcional)"
+msgstr ""
+
+#: templates/store_form.html:28
 msgid "Guardar Tienda"
 msgstr ""
 
-#: templates/stores.html:27
+#: templates/stores.html:6
+msgid "Gestión de Tiendas"
+msgstr ""
+
+#: templates/stores.html:7
+msgid "Listado de todas las sucursales."
+msgstr ""
+
+#: templates/stores.html:10
+msgid "Añadir Tienda"
+msgstr ""
+
+#: templates/stores.html:14
 msgid "Tiendas Registradas"
 msgstr ""
 
-#: templates/stores.html:43
+#: templates/stores.html:36
 msgid "No hay tiendas registradas."
 msgstr ""
 

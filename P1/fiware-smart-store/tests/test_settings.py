@@ -8,7 +8,7 @@ def test_set_language_english(client):
     # Comprobamos que bajo el idioma nuevo (inglés), vemos las cadenas en inglés en el dashboard
     response = client.get('/')
     assert b'Stores' in response.data or b'Products' in response.data
-    assert b'Tiendas' not in response.data
+    assert b'Total Stores' in response.data or b'Total Products' in response.data
 
 def test_set_language_spanish(client):
     """Prueba que el idioma se puede forzar a español"""

@@ -2,8 +2,8 @@
 
 ## 1. Patrón Arquitectónico
 La aplicación sigue un patrón unificado **MVC/MVT** (Model, View, Template) propuesto nativamente por el Framework web **Flask** de Python. 
-- **Models:** Las estructuras de datos están reflejadas en clases Python a través de SQLAlchemy (ORM).
-- **Views (Controladores):** Las funciones de manejo de rutas (`@app.route`) actúan como controladores gestionando el ciclo de peticiones GET/POST y aplicando transacciones en BD.
+- **Models:** Las estructuras de datos están reflejadas en clases Python a través de SQLAlchemy (ORM) usando URNs semánticas de NGSI-v2.
+- **Views (Controladores):** Las funciones de manejo de rutas (`@app.route`) separan la lógica de lectura (listados y vistas de Detalle) de la de escritura (Formularios POST separados), gestionando el ciclo de peticiones asiladamente.
 - **Templates (Vistas):** Documentos Jinja2 (`.html`) renderizados dinámicamente en el servidor en función de los datos que inyecta la lógica de la aplicación.
 
 ## 2. Stack Tecnológico
@@ -33,11 +33,15 @@ P1/fiware-smart-store/
 │   ├── style.css      # Sistema de utilidades CSS, UI Cards, Formularios, Variables del ecosistema.
 │   └── script.js      # Script de conmutación de temáticas claras/oscuras.
 ├── templates/
-│   ├── base.html      # Layout principal contenedor. (Barra de navegación, footer, headers).
-│   ├── index.html     # Dashboard principal.
-│   ├── stores.html    # Vista CRUD de Tiendas.
-│   ├── products.html  # Vista CRUD de Productos.
-│   └── inventory.html # Vista CRUD transaccional del Inventario.
+│   ├── base.html          # Layout principal contenedor. (Barra de navegación, footer, headers).
+│   ├── index.html         # Dashboard principal con métricas (KPIs).
+│   ├── stores.html        # Listado de lectura de Tiendas.
+│   ├── products.html      # Listado de lectura del Catálogo de Productos.
+│   ├── store_detail.html  # Vista en profundidad de una sucursal única y su inventario.
+│   ├── product_detail.html# Vista en profundidad de un artículo y su disponibilidad.
+│   ├── store_form.html    # Formulario aislado de creación/edición de una tienda.
+│   ├── product_form.html  # Formulario aislado de creación/edición de un producto.
+│   └── inventory.html     # Vista CRUD transaccional del Inventario.
 ├── tests/             # Directorio de la suite de tests automatizados con pytest.
 │   ├── conftest.py    # Fixtures (cliente de pruebas, base de datos de test temporal).
 │   ├── test_settings.py # Tests de modos e idiomas (oscuro/claro, ES/EN).

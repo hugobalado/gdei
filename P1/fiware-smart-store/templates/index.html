@@ -6,6 +6,21 @@
     <p>{{ _('Bienvenido al sistema de gestión FIWARE Smart Store.') }}</p>
 </div>
 
+<div class="grid" style="margin-bottom: 2rem;">
+    <div class="card" style="text-align: center; background-color: var(--primary-color); color: white;">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: normal;">{{ _('Tiendas Totales') }}</h3>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ stores_count }}</p>
+    </div>
+    <div class="card" style="text-align: center; background-color: var(--primary-color); color: white;">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: normal;">{{ _('Productos en Catálogo') }}</h3>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ products_count }}</p>
+    </div>
+    <div class="card" style="text-align: center; background-color: var(--primary-color); color: white;">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: normal;">{{ _('Stock Físico (uds.)') }}</h3>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ total_stock }}</p>
+    </div>
+</div>
+
 <div class="grid">
     <a href="{{ url_for('view_stores') }}" style="text-decoration: none; color: inherit;">
         <div class="card" style="text-align: center; padding: 3rem 1.5rem;">

@@ -1,11 +1,11 @@
-from models import Store, Product, Inventory
+from models import Store, Product, InventoryItem
 
 def test_create_store(client, session):
     """Test para añadir una tienda mediante POST"""
     # Enviar solicitud POST
-    response = client.post('/stores', data={
+    response = client.post('/store/new', data={
         'name': 'Test Store 1',
-        'location': 'Test Location 123'
+        'address': 'Test Location 123'
     }, follow_redirects=True)
     
     assert response.status_code == 200
@@ -15,14 +15,14 @@ def test_create_store(client, session):
     # Comprobar en base de datos
     store = Store.query.filter_by(name='Test Store 1').first()
     assert store is not None
-    assert store.location == 'Test Location 123'
+    assert store.address == 'Test Location 123'
 
 def test_create_product(client, session):
     """Test para añadir un producto mediante POST"""
     # Enviar solicitud POST
-    response = client.post('/products', data={
+    response = client.post('/product/new', data={
         'name': 'Test Product A',
-        'description': 'Description A',
+        'size': 'Description A',
         'price': '9.99'
     }, follow_redirects=True)
     
@@ -37,33 +37,33 @@ def test_create_product(client, session):
 def test_create_inventory(client, session):
     """Test para la relación de inventario, sumando a uno existente o creando nuevo"""
     # 1. Crear dependencias en BD
-    store = Store(name='Inventory Store', location='Loc')
-    product = Product(name='Inventory Product', description='Desc', price=1.5)
+    store = Store(name='Inventory Store', address='Loc')
+    product = Product(name='Inventory Product', size='Desc', price=1.5)
     session.add(store)
     session.add(product)
     session.commit()
 
     # 2. Enviar POST al inventario
     response = client.post('/inventory', data={
-        'store_id': store.id,
-        'product_id': product.id,
-        'quantity': '25'
+        'refStore': store.id,
+        'refProduct': product.id,
+        'stockCount': '25'
     }, follow_redirects=True)
     
     assert response.status_code == 200
     
     # 3. Comprobar que la cantidad es 25 en BBDD
-    inv = Inventory.query.filter_by(store_id=store.id, product_id=product.id).first()
+    inv = InventoryItem.query.filter_by(refStore=store.id, refProduct=product.id).first()
     assert inv is not None
-    assert inv.quantity == 25
+    assert inv.stockCount == 25
 
     # 4. Enviar otro POST con 10 más
     client.post('/inventory', data={
-        'store_id': store.id,
-        'product_id': product.id,
-        'quantity': '10'
+        'refStore': store.id,
+        'refProduct': product.id,
+        'stockCount': '10'
     })
 
     # 5. Comprobar que ahora es 35
-    inv_updated = Inventory.query.filter_by(store_id=store.id, product_id=product.id).first()
-    assert inv_updated.quantity == 35
+    inv_updated = InventoryItem.query.filter_by(refStore=store.id, refProduct=product.id).first()
+    assert inv_updated.stockCount == 35
