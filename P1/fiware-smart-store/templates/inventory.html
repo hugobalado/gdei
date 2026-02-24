@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fa-solid fa-cubes-stacked"></i> {{ _('Control de Inventario') }}</h1>
+</div>
+
+<div class="form-container">
+    <h2 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus"></i> {{ _('Añadir Stock') }}</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="store_id">{{ _('Tienda') }}</label>
+            <select id="store_id" name="store_id" class="form-control" required>
+                <option value="" disabled selected>{{ _('Seleccione una tienda') }}</option>
+                {% for store in stores %}
+                <option value="{{ store.id }}">{{ store.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="product_id">{{ _('Producto') }}</label>
+            <select id="product_id" name="product_id" class="form-control" required>
+                <option value="" disabled selected>{{ _('Seleccione un producto') }}</option>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">{{ _('Cantidad a Añadir') }}</label>
+            <input type="number" id="quantity" name="quantity" class="form-control" required min="1"
+                placeholder="{{ _('Ej: 50') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-arrow-up-right-dots"></i> {{ _('Actualizar Inventario') }}
+        </button>
+    </form>
+</div>
+
+<h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-list-check"></i> {{ _('Stock Actual') }}</h2>
+<div class="grid">
+    {% for inv in inventories %}
+    <div class="card">
+        <div class="card-title" style="font-size: 1.1rem;">
+            <i class="fa-solid fa-shop" style="color: var(--primary-color);"></i>
+            {{ inv.store.name }}
+        </div>
+        <div class="card-body">
+            <div style="font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-box"></i> {{ inv.product.name }}
+            </div>
+            <div
+                style="font-size: 2rem; font-weight: 700; color: var(--primary-color); text-align: center; margin: 1rem 0;">
+                {{ inv.quantity }} <span style="font-size: 1rem; color: var(--text-color); font-weight: normal;">{{
+                    _('uds') }}</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>{{ _('No hay inventario registrado.') }}</p>
+    {% endfor %}
+</div>
+{% endblock %}

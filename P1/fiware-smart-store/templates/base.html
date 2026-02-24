@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIWARE Smart Store</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('index') }}">
+                <i class="fa-solid fa-store"></i>
+                FIWARE Smart Store
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="{{ url_for('view_stores') }}">
+                    <i class="fa-solid fa-shop"></i> {{ _('Tiendas') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('view_products') }}">
+                    <i class="fa-solid fa-box"></i> {{ _('Productos') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('view_inventory') }}">
+                    <i class="fa-solid fa-cubes-stacked"></i> {{ _('Inventario') }}
+                </a>
+            </li>
+            <li>
+                {% set current_lang = session.get('lang', 'es') %}
+                {% if current_lang == 'es' %}
+                <a href="{{ url_for('set_language', lang='en') }}" class="lang-toggle" aria-label="Cambiar a Inglés">
+                    <strong>EN</strong>
+                </a>
+                {% else %}
+                <a href="{{ url_for('set_language', lang='es') }}" class="lang-toggle" aria-label="Switch to Spanish">
+                    <strong>ES</strong>
+                </a>
+                {% endif %}
+            </li>
+            <li>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

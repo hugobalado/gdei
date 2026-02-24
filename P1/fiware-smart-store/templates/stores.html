@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fa-solid fa-shop"></i> {{ _('Gestión de Tiendas') }}</h1>
+</div>
+
+<div class="form-container">
+    <h2 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus"></i> {{ _('Nueva Tienda') }}</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">{{ _('Nombre de la Tienda') }}</label>
+            <input type="text" id="name" name="name" class="form-control" required
+                placeholder="{{ _('Ej: Supermercado Norte') }}">
+        </div>
+        <div class="form-group">
+            <label for="location">{{ _('Ubicación') }}</label>
+            <input type="text" id="location" name="location" class="form-control" required
+                placeholder="{{ _('Ej: Calle Mayor, 1') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> {{ _('Guardar Tienda') }}
+        </button>
+    </form>
+</div>
+
+<h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-list"></i> {{ _('Tiendas Registradas') }}</h2>
+<div class="grid">
+    {% for store in stores %}
+    <div class="card">
+        <div class="card-title">
+            <i class="fa-solid fa-shop" style="color: var(--primary-color);"></i>
+            {{ store.name }}
+        </div>
+        <div class="card-body">
+            <p><i class="fa-solid fa-location-dot" style="margin-right: 0.5rem;"></i>{{ store.location }}</p>
+        </div>
+        <div class="card-footer" style="font-size: 0.85rem; color: var(--primary-color);">
+            ID: {{ store.id }}
+        </div>
+    </div>
+    {% else %}
+    <p>{{ _('No hay tiendas registradas.') }}</p>
+    {% endfor %}
+</div>
+{% endblock %}

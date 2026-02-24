@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fa-solid fa-chart-line"></i> {{ _('Dashboard') }}</h1>
+    <p>{{ _('Bienvenido al sistema de gestión FIWARE Smart Store.') }}</p>
+</div>
+
+<div class="grid">
+    <a href="{{ url_for('view_stores') }}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+            <i class="fa-solid fa-shop" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+            <h2 class="card-title" style="justify-content: center;">{{ _('Tiendas') }}</h2>
+            <p class="card-body">{{ _('Gestiona las diferentes sucursales del supermercado.') }}</p>
+        </div>
+    </a>
+
+    <a href="{{ url_for('view_products') }}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+            <i class="fa-solid fa-box" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+            <h2 class="card-title" style="justify-content: center;">{{ _('Productos') }}</h2>
+            <p class="card-body">{{ _('Administra el catálogo de productos disponibles.') }}</p>
+        </div>
+    </a>
+
+    <a href="{{ url_for('view_inventory') }}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+            <i class="fa-solid fa-cubes-stacked"
+                style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+            <h2 class="card-title" style="justify-content: center;">{{ _('Inventario') }}</h2>
+            <p class="card-body">{{ _('Controla el stock de productos en cada tienda.') }}</p>
+        </div>
+    </a>
+</div>
+{% endblock %}
