@@ -15,10 +15,11 @@ La aplicación sigue un patrón unificado **MVC/MVT** (Model, View, Template) pr
 - **Testing y QA:** `pytest` y `pytest-flask` para el modelado de la suite de pruebas unitarias y de integración del ecosistema, probando interacciones tanto estáticas como transaccionales.
 
 ### Frontend
-- **HTML:** Etiquetas semánticas estructuradas con directivas Jinja2.
-- **Estilos (CSS):** Vanilla CSS con variables (`root` variables) inyectado para gestionar estilos y paletas de colores (Modo claro/oscuro) de modo dinámico sin librerías pesadas, aplicando flexbox/grids.
-- **Interactividad (JS):** Vanilla JavaScript enfocado exclusivamente a manipular el DOM para el cambio persistente de tema, usando `localStorage`.
-- **Iconografía:** FontAwesome (CDN) integrado directamente para renderizar SVG Icons asociados al domino ("Tienda", "Producto", "Cajas").
+- **HTML:** Etiquetas semánticas estructuradas con directivas Jinja2. Manejo de fallos en carga de archivos multimedia (`onerror` image fallbacks).
+- **Estilos (CSS):** Vanilla CSS con variables (`root` variables) inyectado para gestionar estilos y paletas de colores (Modo claro/oscuro y estética blanquiazul) de modo dinámico sin librerías pesadas, aplicando flexbox/grids y transiciones fluidas.
+- **Interactividad (JS):** Vanilla JavaScript enfocado a manipular el DOM para el cambio persistente de tema, usando `localStorage`.
+- **Mapas (JS):** Leaflet.js combinado con la API de Nominatim (OpenStreetMap) para renderizar mapas interactivos de ubicación por tienda.
+- **Iconografía:** FontAwesome (CDN) integrado directamente para renderizar SVG Icons asociados al domino ("Tienda", "Producto", "Cajas", "Personal").
 
 ## 3. Estructura de Proyecto
 ```
@@ -37,11 +38,16 @@ P1/fiware-smart-store/
 │   ├── index.html         # Dashboard principal con métricas (KPIs).
 │   ├── stores.html        # Listado de lectura de Tiendas.
 │   ├── products.html      # Listado de lectura del Catálogo de Productos.
+│   ├── employees.html     # Listado de lectura del conjunto de Empleados.
 │   ├── store_detail.html  # Vista en profundidad de una sucursal única y su inventario.
 │   ├── product_detail.html# Vista en profundidad de un artículo y su disponibilidad.
+│   ├── employee_detail.html # Vista individual del trabajador (salario, rol).
 │   ├── store_form.html    # Formulario aislado de creación/edición de una tienda.
 │   ├── product_form.html  # Formulario aislado de creación/edición de un producto.
-│   └── inventory.html     # Vista CRUD transaccional del Inventario.
+│   ├── employee_form.html # Formulario de registro de un empleado y asignación a tienda.
+│   ├── shelf_form.html    # Formulario dinámico de gestión de unidades de almacenaje o baldas.
+│   ├── inventory_form.html# Componente de interfaz integrado para agregar o modificar stock entre tienda y producto.
+│   └── inventory.html     # Vista general macro listando de forma masiva los registros globales del Inventario.
 ├── tests/             # Directorio de la suite de tests automatizados con pytest.
 │   ├── conftest.py    # Fixtures (cliente de pruebas, base de datos de test temporal).
 │   ├── test_settings.py # Tests de modos e idiomas (oscuro/claro, ES/EN).

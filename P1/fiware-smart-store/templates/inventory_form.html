@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>
+        {% if inventory %}
+        {{ _('Editar Stock') }}
+        {% elif store %}
+        {{ _('Añadir Producto a') }} {{ store.name }}
+        {% elif product %}
+        {{ _('Añadir Disponibilidad de') }} {{ product.name }}
+        {% endif %}
+    </h2>
+
+    <form method="POST">
+        {% if inventory %}
+        <div style="margin-bottom: 1.5rem;">
+            <strong>{{ _('Producto') }}:</strong> {{ inventory.product.name }}<br>
+            <strong>{{ _('Tienda') }}:</strong> {{ inventory.store.name }}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="stockCount" style="display: block; margin-bottom: 0.5rem; color: var(--text-color);">{{
+                _('Cantidad en Stock') }}</label>
+            <input type="number" id="stockCount" name="stockCount" required min="0"
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color);"
+                value="{{ inventory.stockCount }}">
+        </div>
+        {% elif store %}
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="refProduct" style="display: block; margin-bottom: 0.5rem; color: var(--text-color);">{{
+                _('Seleccionar Producto') }}</label>
+            <select id="refProduct" name="refProduct" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color);">
+                <option value="">-- {{ _('Seleccione un producto') }} --</option>
+                {% for p in products %}
+                <option value="{{ p.id }}">{{ p.name }} ({{ p.size }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="stockCount" style="display: block; margin-bottom: 0.5rem; color: var(--text-color);">{{
+                _('Cantidad Inicial') }}</label>
+            <input type="number" id="stockCount" name="stockCount" required min="1"
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color);"
+                value="1">
+        </div>
+        {% elif product %}
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="refStore" style="display: block; margin-bottom: 0.5rem; color: var(--text-color);">{{
+                _('Seleccionar Tienda') }}</label>
+            <select id="refStore" name="refStore" required
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color);">
+                <option value="">-- {{ _('Seleccione una tienda') }} --</option>
+                {% for s in stores %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="stockCount" style="display: block; margin-bottom: 0.5rem; color: var(--text-color);">{{
+                _('Cantidad Inicial') }}</label>
+            <input type="number" id="stockCount" name="stockCount" required min="1"
+                style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color);"
+                value="1">
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary"
+                style="background-color: var(--primary-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                {{ _('Guardar') }}
+            </button>
+            <a href="javascript:history.back()" class="btn"
+                style="text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-color);">
+                {{ _('Cancelar') }}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

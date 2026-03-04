@@ -16,6 +16,10 @@
         <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ products_count }}</p>
     </div>
     <div class="card" style="text-align: center; background-color: var(--primary-color); color: white;">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: normal;">{{ _('Empleados Totales') }}</h3>
+        <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ employees_count }}</p>
+    </div>
+    <div class="card" style="text-align: center; background-color: var(--primary-color); color: white;">
         <h3 style="margin-bottom: 0.5rem; font-size: 1.2rem; font-weight: normal;">{{ _('Stock Físico (uds.)') }}</h3>
         <p style="font-size: 2.5rem; font-weight: 700; margin: 0;">{{ total_stock }}</p>
     </div>
@@ -35,6 +39,14 @@
             <i class="fa-solid fa-box" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
             <h2 class="card-title" style="justify-content: center;">{{ _('Productos') }}</h2>
             <p class="card-body">{{ _('Administra el catálogo de productos disponibles.') }}</p>
+        </div>
+    </a>
+
+    <a href="{{ url_for('view_employees') }}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="text-align: center; padding: 3rem 1.5rem;">
+            <i class="fa-solid fa-users" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+            <h2 class="card-title" style="justify-content: center;">{{ _('Empleados') }}</h2>
+            <p class="card-body">{{ _('Gestiona la plantilla de empleados y sus roles.') }}</p>
         </div>
     </a>
 

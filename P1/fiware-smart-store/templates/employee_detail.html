@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('view_employees') }}"
+        style="color: var(--primary-color); text-decoration: none; display: inline-block; margin-bottom: 1rem;">
+        <i class="fa-solid fa-arrow-left"></i> {{ _('Volver a Empleados') }}
+    </a>
+    <h1>{{ employee.name }}</h1>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            {% if employee.image %}
+            <img src="{{ employee.image }}" alt="{{ employee.name }}"
+                onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80';"
+                style="width: 100%; border-radius: 8px; object-fit: cover;">
+            {% else %}
+            <div
+                style="width: 100%; height: 300px; background-color: #e2e8f0; display: flex; justify-content: center; align-items: center; border-radius: 8px;">
+                <i class="fa-solid fa-user" style="font-size: 6rem; color: #94a3b8;"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div style="flex: 2; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong style="color: var(--primary-color);">{{ _('ID:')
+                    }}</strong> {{ employee.id }}</p>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong style="color: var(--primary-color);">{{ _('Rol:')
+                    }}</strong> {{ employee.role }}</p>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong style="color: var(--primary-color);">{{
+                    _('Salario:') }}</strong> {{ employee.salary }} €</p>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong style="color: var(--primary-color);">{{
+                    _('Tienda:') }}</strong> <a href="{{ url_for('store_detail', id=employee.store.id) }}"
+                    style="color: inherit; text-decoration: underline;">{{ employee.store.name }}</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

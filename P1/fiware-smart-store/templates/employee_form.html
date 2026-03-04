@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('view_employees') }}"
+        style="color: var(--primary-color); text-decoration: none; display: inline-block; margin-bottom: 1rem;">
+        <i class="fa-solid fa-arrow-left"></i> {{ _('Volver a Empleados') }}
+    </a>
+    <h1><i class="fa-solid fa-user-plus"></i> {{ _('Añadir Nuevo Empleado') }}</h1>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('employee_create') }}">
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">{{ _('Nombre Completo')
+                }} *</label>
+            <input type="text" id="name" name="name" required
+                style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="role" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">{{ _('Rol/Puesto') }}
+                *</label>
+            <input type="text" id="role" name="role" required placeholder="Cajero, Reponedor, Gerente..."
+                style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="salary" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">{{ _('Salario') }}
+                *</label>
+            <input type="number" id="salary" name="salary" step="0.01" required
+                style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="refStore" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">{{ _('Tienda') }}
+                *</label>
+            <select id="refStore" name="refStore" required
+                style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">
+                <option value="" disabled selected>{{ _('Selecciona una tienda...') }}</option>
+                {% for store in stores %}
+                <option value="{{ store.id }}">{{ store.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 2rem;">
+            <label for="image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">{{ _('URL de la Imagen')
+                }}</label>
+            <input type="url" id="image" name="image" placeholder="https://..."
+                style="width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 4px; font-family: inherit;">
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+            style="width: 100%; justify-content: center; font-size: 1.1rem; padding: 1rem;">
+            <i class="fa-solid fa-save"></i> {{ _('Guardar Empleado') }}
+        </button>
+    </form>
+</div>
+{% endblock %}

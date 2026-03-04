@@ -1,4 +1,4 @@
-from models import Store, Product, InventoryItem
+from models import Store, Product, InventoryItem, Employee
 
 def test_create_store(client, session):
     """Test para añadir una tienda mediante POST"""
@@ -67,3 +67,27 @@ def test_create_inventory(client, session):
     # 5. Comprobar que ahora es 35
     inv_updated = InventoryItem.query.filter_by(refStore=store.id, refProduct=product.id).first()
     assert inv_updated.stockCount == 35
+
+def test_create_employee(client, session):
+    """Test para añadir un empleado mediante POST"""
+    # 1. Crear dependencias en BD (Store)
+    store = Store(name='Employee Store', address='Loc')
+    session.add(store)
+    session.commit()
+
+    # 2. Enviar POST al empleado
+    response = client.post('/employee/new', data={
+        'name': 'Test Employee',
+        'role': 'Gerente',
+        'salary': '2500.00',
+        'refStore': store.id
+    }, follow_redirects=True)
+    
+    assert response.status_code == 200
+    
+    # 3. Comprobar en base de datos
+    employee = Employee.query.filter_by(name='Test Employee').first()
+    assert employee is not None
+    assert employee.role == 'Gerente'
+    assert employee.salary == 2500.0
+    assert employee.refStore == store.id
