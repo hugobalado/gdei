@@ -10,7 +10,9 @@ La aplicación sigue un patrón unificado **MVC/MVT** (Model, View, Template) pr
 ### Backend
 - **Lenguaje:** Python 3.
 - **Framework Web:** Flask 3.0.
-- **ORM / Base de Datos:** Flask-SQLAlchemy para crear una abstracción sobre una base de datos embebida `SQLite`.
+- **Microservicios (Docker):** FIWARE Orion Context Broker (NGSI-v2 API) sustentado por una base de datos documental MongoDB (v6.0) desplegada mediante `docker-compose`.
+- **ORM / Base de Datos Alternativa:** Flask-SQLAlchemy para crear una abstracción sobre una base de datos embebida `SQLite` como respaldo local cuando Orion no está disponible.
+- **Comunicación HTTP:** Librería `requests` para gestionar las transferencias de hipertexto contra la API REST de Orion de forma síncrona.
 - **Internacionalización:** Flask-Babel (i18n) para traducción de elementos estáticos e interfaces al vuelo mediante archivos compilados `.mo`.
 - **Testing y QA:** `pytest` y `pytest-flask` para el modelado de la suite de pruebas unitarias y de integración del ecosistema, probando interacciones tanto estáticas como transaccionales.
 
@@ -24,9 +26,15 @@ La aplicación sigue un patrón unificado **MVC/MVT** (Model, View, Template) pr
 ## 3. Estructura de Proyecto
 ```
 P1/fiware-smart-store/
-├── app.py             # Controlador principal y enrutador web. Rutinas inicializadoras y configuración de Babel (i18n).
-├── models.py          # Definición de estructuras y relaciones SQLAlchemy.
-├── requirements.txt   # Dependencias de pip.
+├── .env               # Variables de entorno para aprovisionamiento de Docker (Puertos, Versiones de Orión/Mongo).
+├── docker-compose.yml # Receta de despliegue de la infraestructura subyacente de FIWARE.
+├── start.sh           # Script BASH automatizado que orquesta el levantado de dockers, inyección de datos (`seed_orion.py`) y arranque de Flask.
+├── stop.sh            # Script BASH para limpieza y detención del ecosistema de contenedores.
+├── app.py             # Controlador principal y enrutador web. Rutinas inicializadoras, bifurcación condicional de Base de datos, y configuración de Babel (i18n).
+├── orion_service.py   # Servicio de integración (Wrapper) que encapsula TODA la comunicación HTTP contra Orion Context Broker.
+├── seed_orion.py      # Script automatizado que inyecta datos ficticios estandarizados idénticos a los del entorno local en Orion v2 de arranque.
+├── models.py          # Definición de estructuras lógicas SQLAlchemy como repuesto local estructurado.
+├── requirements.txt   # Dependencias de pip (`Flask`, `SQLAlchemy`, `Babel`, `pytest`, `requests`).
 ├── .gitignore         # Configuración de exclusión para Git (.venv, pycache, etc).
 ├── babel.cfg          # Archivo de configuración para la extracción de textos traducibles (Flask-Babel).
 ├── translations/      # Directorio que almacena los catálogos de mensajes regionales (.po, .mo).

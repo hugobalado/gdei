@@ -26,7 +26,7 @@ FIWARE Smart Store es una aplicación web intuitiva diseñada para la gestión i
 ## 4. Requisitos No Funcionales
 - **Usabilidad:** Interfaz con diseño "clean" y moderno, empleando fuentes modernas e iconografía representativa para todos los conceptos del dominio.
 - **Rendimiento:** Las operaciones de creación y consulta deben ser instantáneas mediante la recarga directa de interfaz.
-- **Persistencia:** Todos los datos deben ser almacenados estructuradamente en base de datos.
+- **Persistencia Aislada y Concurrente:** Todos los datos deben ser almacenados estructuradamente. La aplicación soporta **dos sistemas de persistencia independientes**: (1) Una base de datos SQLite embebida (`SQLAlchemy`) por defecto, y (2) **FIWARE Orion Context Broker** a través de su API NGSI-v2 mediante contenedores Docker, actuando como principal almacén vivo si está conectado. No se realiza sincronización entre ambos.
 - **Responsive:** Navegación diseñada para funcionar óptimamente a diferentes resoluciones (Desktop/Web/Tablet).
 - **Internacionalización Constante:** Sólo el contenido estático de las interfaces debe ser traducido localmente; los datos que conforman el catálogo o sucursales extraídos dinámicamente de la base de datos se rigen por un principio de "Lenguaje Agnóstico" (Intra-traducibles).
 - **Calidad y Testing (QA):** La aplicación debe contar con una suite de tests automatizados que asegure el correcto funcionamiento de las rutas, cambios de configuración de la interfaz y operaciones de base de datos (CRUD), garantizando que futuras actualizaciones no rompan las funcionalidades críticas.

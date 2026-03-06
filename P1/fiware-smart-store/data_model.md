@@ -1,7 +1,7 @@
 # Modelo de Datos
 
 ## 1. Visión General de Entidades
-La base de datos relacional de la aplicación `fiware-smart-store` se define sobre SQLite usando `SQLAlchemy`. Está compuesta por cuatro entidades principales: Tienda, Producto, Inventario (pivot), y Empleado.
+El sistema soporta un enfoque de datos híbrido aislando dos vías de persistencia: base de datos relacional (SQLite via `SQLAlchemy`) y grafos de contexto (API REST `FIWARE Orion Context Broker` utilizando NGSI-v2). En ambos casos la abstracción conceptual está compuesta por cuatro entidades principales: Tienda, Producto, Inventario (pivot), y Empleado.
 
 ## 2. Diagrama de Relación (Lógico)
 
@@ -20,10 +20,10 @@ Representa una sucursal física de la cadena de supermercados.
 
 | Columna | Tipo de Dato | Llave | Modificadores | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | String(255) | PK | URN UUID | Identificador único de la tienda (formato URN `urn:ngsi-ld:Store:...`). |
-| `name` | String(100) | | Not Null | Nombre descriptivo de la sucursal. |
-| `address`| String(200) | | Not Null | Dirección postal o ubicación de la misma. |
-| `image` | String(500) | | Nullable | URL externa (ej. Unsplash) a una imagen representativa. |
+| `id` | String(255) / Text | PK / ID | URN UUID | Identificador único de la tienda (formato URN `urn:ngsi-ld:Store:...`). |
+| `name` | String(100) / Text | | Not Null | Nombre descriptivo de la sucursal. |
+| `address`| String(200) / Text | | Not Null | Dirección postal o ubicación de la misma. |
+| `image` | String(500) / Text | | Nullable | URL externa (ej. Unsplash) a una imagen representativa. En **Orion** este atributo se somete a `URL Encoding` (`urllib.parse.quote`) para evadir los caracteres inválidos según el estándar NGSI-v2 (`?`, `=`). |
 
 ### Tabla: `shelf`
 Representa una estantería o balda organizativa dentro de las dependencias de una tienda.
@@ -32,8 +32,8 @@ Representa una estantería o balda organizativa dentro de las dependencias de un
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | String(255) | PK | URN UUID | Identificador único de la estantería (formato URN `urn:ngsi-ld:Shelf:...`). |
 | `name` | String(100) | | Not Null | Nombre descriptivo de la balda. |
-| `location` | String(200) | | Nullable | Ubicación semántica o física. |
-| `refStore` | String(255) | FK | Not Null | Relación (Foreign Key) a `store.id`. |
+| `location` | String(200) / Text | | Nullable | Ubicación semántica o física. |
+| `refStore` | String(255) / Relationship | FK / Rel | Not Null | Dependencia semántica / Foreign Key a `store.id`. Tipificada en Orion como `Relationship`. |
 
 ### Tabla: `employee`
 Representa un trabajador de una sucursal específica.
@@ -42,10 +42,10 @@ Representa un trabajador de una sucursal específica.
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | String(255) | PK | URN UUID | Identificador único del empleado (formato URN `urn:ngsi-ld:Employee:...`). |
 | `name` | String(100) | | Not Null | Nombre completo del empleado. |
-| `image` | String(500) | | Nullable | URL externa (ej. Unsplash) de la foto del trabajador. |
-| `salary` | Float | | Not Null | Salario del empleado. |
-| `role` | String(100) | | Not Null | Puesto laboral (ej. "Cajero", "Gerente"). |
-| `refStore` | String(255) | FK | Not Null | Relación (Foreign Key) a `store.id`. |
+| `image` | String(500) / Text | | Nullable | URL externa (ej. Unsplash) de la foto del trabajador. Sometida a *URL Encoding* en Orion. |
+| `salary` | Float / Float | | Not Null | Salario del empleado. |
+| `role` | String(100) / Text | | Not Null | Puesto laboral (ej. "Cajero", "Gerente"). |
+| `refStore` | String(255) / Relationship| FK / Rel | Not Null | Dependencia semántica / Foreign Key a `store.id`. Tipificada en Orion como `Relationship`. |
 
 ### Tabla: `product`
 Representa un artículo genérico del catálogo disponible para venderse.
@@ -55,19 +55,19 @@ Representa un artículo genérico del catálogo disponible para venderse.
 | `id` | String(255) | PK | URN UUID | Identificador único del producto (formato URN `urn:ngsi-ld:Product:...`). |
 | `name` | String(100) | | Not Null | Nombre del producto comercializado. |
 | `size` | Text | | Nullable | Tamaño o breve caracterización (ej. "1 Litro", "S", "M"). |
-| `price` | Float | | Not Null | Precio general o recomendando de venta (€). |
-| `originCountry` | String(100) | | Nullable | País de procedencia del producto (ej. "España"). |
-| `image` | String(500) | | Nullable | URL externa (ej. Unsplash) a una foto del producto. |
+| `price` | Float / Float | | Not Null | Precio general o recomendando de venta (€). |
+| `originCountry` | String(100) / Text | | Nullable | País de procedencia del producto (ej. "España"). |
+| `image` | String(500) / Text | | Nullable | URL externa (ej. Unsplash) a una foto del producto. Sometida a *URL Encoding* en Orion. |
 
 ### Tabla: `inventoryitem` (Modelo `InventoryItem`)
 Tabla asociativa transaccional. Registra qué cantidad de cada producto concreto está albergada en cada tienda específica.
 
 | Columna | Tipo de Dato | Llave | Modificadores | Descripción |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | String(255) | PK | URN UUID | Identificador transaccional único (formato URN `urn:ngsi-ld:InventoryItem:...`). |
-| `refStore` | String(255)| FK | Not Null | Relación (Foreign Key) a `store.id`. |
-| `refProduct` | String(255)| FK | Not Null | Relación (Foreign Key) a `product.id`. |
-| `stockCount` | Integer | | Not Null, Default(0)| Cantidad de unidades físicas de stock disponibles. |
+| `id` | String(255) / Text | PK / ID | URN UUID | Identificador transaccional único (formato URN `urn:ngsi-ld:InventoryItem:...`). |
+| `refStore` | String(255) / Relationship| FK / Rel | Not Null | Relación dependiente a `store.id`. |
+| `refProduct` | String(255) / Relationship| FK / Rel | Not Null | Relación dependiente a `product.id`. |
+| `stockCount` | Integer / Integer | | Not Null, Default(0)| Cantidad de unidades físicas de stock disponibles. |
 
 ## 4. Políticas en Cascada (Cascade)
 - Tanto el modelo `Store` como el `Product` están configurados con relaciones `cascade="all, delete-orphan"` para proteger dependencias directas.

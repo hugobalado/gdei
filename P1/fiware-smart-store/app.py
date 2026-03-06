@@ -1,7 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 from flask_babel import Babel, _
 from models import db, Store, Product, InventoryItem, Employee, Shelf
+import orion_service
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev_secret_key'
@@ -92,25 +93,47 @@ def seed_data():
         db.session.commit()
 
 with app.app_context():
-    db.create_all()
-    seed_data()
+    # Check Orion Connectivity here
+    if app.config.get('TESTING', False):
+        app.config['USE_ORION'] = False
+    else:
+        app.config['USE_ORION'] = orion_service.check_connection()
+        print(f"[*] Orion Context Broker connectivity: {'SUCCESS' if app.config['USE_ORION'] else 'FAILED (Using SQLite)'}")
+    
+    if not app.config['USE_ORION']:
+        db.create_all()
+        seed_data()
 
 @app.route('/')
 def index():
-    stores_count = Store.query.count()
-    products_count = Product.query.count()
-    employees_count = Employee.query.count()
-    total_stock = db.session.query(db.func.sum(InventoryItem.stockCount)).scalar() or 0
+    if app.config.get('USE_ORION'):
+        stores_count = len(orion_service.get_stores())
+        products_count = len(orion_service.get_products())
+        employees_count = len(orion_service.get_employees())
+        inventories = orion_service.get_inventories()
+        total_stock = sum([int(inv.stockCount) for inv in inventories if getattr(inv, 'stockCount', None) is not None])
+    else:
+        stores_count = Store.query.count()
+        products_count = Product.query.count()
+        employees_count = Employee.query.count()
+        total_stock = db.session.query(db.func.sum(InventoryItem.stockCount)).scalar() or 0
     return render_template('index.html', stores_count=stores_count, products_count=products_count, employees_count=employees_count, total_stock=total_stock)
 
 @app.route('/stores')
 def view_stores():
-    stores = Store.query.all()
+    if app.config.get('USE_ORION'):
+        stores = orion_service.get_stores()
+    else:
+        stores = Store.query.all()
     return render_template('stores.html', stores=stores)
 
 @app.route('/store/<id>')
 def store_detail(id):
-    store = Store.query.get_or_404(id)
+    if app.config.get('USE_ORION'):
+        store = orion_service.get_store_with_relations(id)
+        if not store: abort(404)
+    else:
+        store = Store.query.get_or_404(id)
     return render_template('store_detail.html', store=store)
 
 @app.route('/store/new', methods=['GET', 'POST'])
@@ -120,20 +143,30 @@ def store_create():
         address = request.form.get('address')
         image = request.form.get('image')
         if name and address:
-            new_store = Store(name=name, address=address, image=image)
-            db.session.add(new_store)
-            db.session.commit()
+            if app.config.get('USE_ORION'):
+                orion_service.create_store(name, address, image)
+            else:
+                new_store = Store(name=name, address=address, image=image)
+                db.session.add(new_store)
+                db.session.commit()
             return redirect(url_for('view_stores'))
     return render_template('store_form.html')
 
 @app.route('/products')
 def view_products():
-    products = Product.query.all()
+    if app.config.get('USE_ORION'):
+        products = orion_service.get_products()
+    else:
+        products = Product.query.all()
     return render_template('products.html', products=products)
 
 @app.route('/product/<id>')
 def product_detail(id):
-    product = Product.query.get_or_404(id)
+    if app.config.get('USE_ORION'):
+        product = orion_service.get_product_with_relations(id)
+        if not product: abort(404)
+    else:
+        product = Product.query.get_or_404(id)
     return render_template('product_detail.html', product=product)
 
 @app.route('/product/new', methods=['GET', 'POST'])
@@ -147,9 +180,12 @@ def product_create():
         if name and price_str:
             try:
                 price = float(price_str)
-                new_product = Product(name=name, size=size, price=price, image=image, originCountry=originCountry)
-                db.session.add(new_product)
-                db.session.commit()
+                if app.config.get('USE_ORION'):
+                    orion_service.create_product(name, price, size, image, originCountry)
+                else:
+                    new_product = Product(name=name, size=size, price=price, image=image, originCountry=originCountry)
+                    db.session.add(new_product)
+                    db.session.commit()
             except ValueError:
                 pass
             return redirect(url_for('view_products'))
@@ -157,12 +193,25 @@ def product_create():
 
 @app.route('/employees')
 def view_employees():
-    employees = Employee.query.all()
+    if app.config.get('USE_ORION'):
+        employees = orion_service.get_employees()
+        stores = orion_service.get_stores()
+        # map store names for template if needed (though employees list doesn't strictly need it if it shows refStore, templates usually want e.store.name)
+        # the simplest way:
+        for e in employees:
+            e.store = next((s for s in stores if s.id == getattr(e, 'refStore', None)), None)
+    else:
+        employees = Employee.query.all()
     return render_template('employees.html', employees=employees)
 
 @app.route('/employee/<id>')
 def employee_detail(id):
-    employee = Employee.query.get_or_404(id)
+    if app.config.get('USE_ORION'):
+        employee = orion_service.get_employee(id)
+        if not employee: abort(404)
+        employee.store = orion_service.get_store(getattr(employee, 'refStore', None))
+    else:
+        employee = Employee.query.get_or_404(id)
     return render_template('employee_detail.html', employee=employee)
 
 @app.route('/employee/new', methods=['GET', 'POST'])
@@ -176,47 +225,80 @@ def employee_create():
         if name and salary_str and role and refStore:
             try:
                 salary = float(salary_str)
-                new_employee = Employee(name=name, image=image, salary=salary, role=role, refStore=refStore)
-                db.session.add(new_employee)
-                db.session.commit()
+                if app.config.get('USE_ORION'):
+                    orion_service.create_employee(name, salary, role, refStore, image)
+                else:
+                    new_employee = Employee(name=name, image=image, salary=salary, role=role, refStore=refStore)
+                    db.session.add(new_employee)
+                    db.session.commit()
             except ValueError:
                 pass
             return redirect(url_for('view_employees'))
-    stores = Store.query.all()
+            
+    if app.config.get('USE_ORION'):
+        stores = orion_service.get_stores()
+    else:
+        stores = Store.query.all()
     return render_template('employee_form.html', stores=stores)
 
 @app.route('/store/<store_id>/shelf/new', methods=['GET', 'POST'])
 def shelf_create(store_id):
-    store = Store.query.get_or_404(store_id)
+    if app.config.get('USE_ORION'):
+        store = orion_service.get_store(store_id)
+        if not store: abort(404)
+    else:
+        store = Store.query.get_or_404(store_id)
+        
     if request.method == 'POST':
         name = request.form.get('name')
         location = request.form.get('location')
         if name:
-            new_shelf = Shelf(name=name, location=location, refStore=store_id)
-            db.session.add(new_shelf)
-            db.session.commit()
+            if app.config.get('USE_ORION'):
+                orion_service.create_shelf(name, location, store_id)
+            else:
+                new_shelf = Shelf(name=name, location=location, refStore=store_id)
+                db.session.add(new_shelf)
+                db.session.commit()
             return redirect(url_for('store_detail', id=store_id))
     return render_template('shelf_form.html', store_id=store_id)
 
 @app.route('/shelf/<id>/edit', methods=['GET', 'POST'])
 def shelf_edit(id):
-    shelf = Shelf.query.get_or_404(id)
+    if app.config.get('USE_ORION'):
+        shelf = orion_service.get_shelf(id)
+        if not shelf: abort(404)
+        store_id = getattr(shelf, 'refStore', None)
+    else:
+        shelf = Shelf.query.get_or_404(id)
+        store_id = shelf.refStore
+        
     if request.method == 'POST':
         name = request.form.get('name')
         location = request.form.get('location')
         if name:
-            shelf.name = name
-            shelf.location = location
-            db.session.commit()
-            return redirect(url_for('store_detail', id=shelf.refStore))
+            if app.config.get('USE_ORION'):
+                orion_service.update_shelf(id, name, location)
+            else:
+                shelf.name = name
+                shelf.location = location
+                db.session.commit()
+            return redirect(url_for('store_detail', id=store_id))
     return render_template('shelf_form.html', shelf=shelf)
 
 @app.route('/shelf/<id>/delete', methods=['POST'])
 def shelf_delete(id):
-    shelf = Shelf.query.get_or_404(id)
-    store_id = shelf.refStore
-    db.session.delete(shelf)
-    db.session.commit()
+    if app.config.get('USE_ORION'):
+        shelf = orion_service.get_shelf(id)
+        if shelf:
+            store_id = getattr(shelf, 'refStore', None)
+            orion_service.delete_entity(id)
+        else:
+            abort(404)
+    else:
+        shelf = Shelf.query.get_or_404(id)
+        store_id = shelf.refStore
+        db.session.delete(shelf)
+        db.session.commit()
     return redirect(url_for('store_detail', id=store_id))
 
 @app.route('/inventory', methods=['GET', 'POST'])
@@ -229,90 +311,144 @@ def view_inventory():
         if refStore and refProduct and stockCount_str:
             try:
                 stockCount = int(stockCount_str)
-                # Check if already exists
-                inv = InventoryItem.query.filter_by(refStore=refStore, refProduct=refProduct).first()
-                if inv:
-                    inv.stockCount += stockCount
+                if app.config.get('USE_ORION'):
+                    inv = orion_service.find_inventory(refStore, refProduct)
+                    if inv:
+                        orion_service.update_inventory_stock(inv.id, int(inv.stockCount) + stockCount)
+                    else:
+                        orion_service.create_inventory(refStore, refProduct, stockCount)
                 else:
-                    new_inv = InventoryItem(refStore=refStore, refProduct=refProduct, stockCount=stockCount)
-                    db.session.add(new_inv)
-                db.session.commit()
+                    inv = InventoryItem.query.filter_by(refStore=refStore, refProduct=refProduct).first()
+                    if inv:
+                        inv.stockCount += stockCount
+                    else:
+                        new_inv = InventoryItem(refStore=refStore, refProduct=refProduct, stockCount=stockCount)
+                        db.session.add(new_inv)
+                    db.session.commit()
             except ValueError:
                 pass
             return redirect(url_for('view_inventory'))
         
-    inventories = InventoryItem.query.join(Store).join(Product).all()
-    stores = Store.query.all()
-    products = Product.query.all()
+    if app.config.get('USE_ORION'):
+        inventories = orion_service.get_all_inventories_with_relations()
+        stores = orion_service.get_stores()
+        products = orion_service.get_products()
+    else:
+        inventories = InventoryItem.query.join(Store).join(Product).all()
+        stores = Store.query.all()
+        products = Product.query.all()
     return render_template('inventory.html', inventories=inventories, stores=stores, products=products)
 
 @app.route('/inventory/<id>/edit', methods=['GET', 'POST'])
 def inventory_edit(id):
-    inv = InventoryItem.query.get_or_404(id)
+    if app.config.get('USE_ORION'):
+        inv = orion_service.get_inventory(id)
+        if not inv: abort(404)
+    else:
+        inv = InventoryItem.query.get_or_404(id)
+        
     if request.method == 'POST':
         stock_str = request.form.get('stockCount')
         if stock_str:
             try:
-                inv.stockCount = int(stock_str)
-                db.session.commit()
+                stockCount = int(stock_str)
+                if app.config.get('USE_ORION'):
+                    orion_service.update_inventory_stock(id, stockCount)
+                else:
+                    inv.stockCount = stockCount
+                    db.session.commit()
             except ValueError:
                 pass
-            # Intentamos redirigir a un context (store or product details)
             next_url = request.args.get('next') or request.referrer or url_for('view_inventory')
             return redirect(next_url)
     return render_template('inventory_form.html', inventory=inv)
 
 @app.route('/inventory/<id>/delete', methods=['POST'])
 def inventory_delete(id):
-    inv = InventoryItem.query.get_or_404(id)
-    db.session.delete(inv)
-    db.session.commit()
+    if app.config.get('USE_ORION'):
+        orion_service.delete_entity(id)
+    else:
+        inv = InventoryItem.query.get_or_404(id)
+        db.session.delete(inv)
+        db.session.commit()
     next_url = request.args.get('next') or request.referrer or url_for('view_inventory')
     return redirect(next_url)
 
 @app.route('/store/<store_id>/inventory/new', methods=['GET', 'POST'])
 def store_inventory_create(store_id):
-    store = Store.query.get_or_404(store_id)
+    if app.config.get('USE_ORION'):
+        store = orion_service.get_store(store_id)
+        if not store: abort(404)
+    else:
+        store = Store.query.get_or_404(store_id)
+        
     if request.method == 'POST':
         refProduct = request.form.get('refProduct')
         stockCount_str = request.form.get('stockCount')
         if refProduct and stockCount_str:
             try:
                 stockCount = int(stockCount_str)
-                inv = InventoryItem.query.filter_by(refStore=store_id, refProduct=refProduct).first()
-                if inv:
-                    inv.stockCount += stockCount
+                if app.config.get('USE_ORION'):
+                    inv = orion_service.find_inventory(store_id, refProduct)
+                    if inv:
+                        orion_service.update_inventory_stock(inv.id, int(inv.stockCount) + stockCount)
+                    else:
+                        orion_service.create_inventory(store_id, refProduct, stockCount)
                 else:
-                    new_inv = InventoryItem(refStore=store_id, refProduct=refProduct, stockCount=stockCount)
-                    db.session.add(new_inv)
-                db.session.commit()
+                    inv = InventoryItem.query.filter_by(refStore=store_id, refProduct=refProduct).first()
+                    if inv:
+                        inv.stockCount += stockCount
+                    else:
+                        new_inv = InventoryItem(refStore=store_id, refProduct=refProduct, stockCount=stockCount)
+                        db.session.add(new_inv)
+                    db.session.commit()
                 return redirect(url_for('store_detail', id=store_id))
             except ValueError:
                 pass
-    products = Product.query.all()
+                
+    if app.config.get('USE_ORION'):
+        products = orion_service.get_products()
+    else:
+        products = Product.query.all()
     return render_template('inventory_form.html', store=store, products=products)
 
 @app.route('/product/<product_id>/inventory/new', methods=['GET', 'POST'])
 def product_inventory_create(product_id):
-    product = Product.query.get_or_404(product_id)
+    if app.config.get('USE_ORION'):
+        product = orion_service.get_product(product_id)
+        if not product: abort(404)
+    else:
+        product = Product.query.get_or_404(product_id)
+        
     if request.method == 'POST':
         refStore = request.form.get('refStore')
         stockCount_str = request.form.get('stockCount')
         if refStore and stockCount_str:
             try:
                 stockCount = int(stockCount_str)
-                inv = InventoryItem.query.filter_by(refStore=refStore, refProduct=product_id).first()
-                if inv:
-                    inv.stockCount += stockCount
+                if app.config.get('USE_ORION'):
+                    inv = orion_service.find_inventory(refStore, product_id)
+                    if inv:
+                        orion_service.update_inventory_stock(inv.id, int(inv.stockCount) + stockCount)
+                    else:
+                        orion_service.create_inventory(refStore, product_id, stockCount)
                 else:
-                    new_inv = InventoryItem(refStore=refStore, refProduct=product_id, stockCount=stockCount)
-                    db.session.add(new_inv)
-                db.session.commit()
+                    inv = InventoryItem.query.filter_by(refStore=refStore, refProduct=product_id).first()
+                    if inv:
+                        inv.stockCount += stockCount
+                    else:
+                        new_inv = InventoryItem(refStore=refStore, refProduct=product_id, stockCount=stockCount)
+                        db.session.add(new_inv)
+                    db.session.commit()
                 return redirect(url_for('product_detail', id=product_id))
             except ValueError:
                 pass
-    stores = Store.query.all()
+                
+    if app.config.get('USE_ORION'):
+        stores = orion_service.get_stores()
+    else:
+        stores = Store.query.all()
     return render_template('inventory_form.html', product=product, stores=stores)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5005)
